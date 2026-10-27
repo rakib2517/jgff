@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#09101f">
+<title>TaskNova — Reward Mini App Demo</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#09101f;--panel:#111b30;--panel2:#182642;--line:#2a3956;--text:#f4f7ff;--muted:#9aabc9;--cyan:#58e0d0;--blue:#6485ff;--purple:#aa7cff;--green:#56d6a0;--gold:#ffd36c;--red:#ff8196}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at 8% 0%,#202e5c 0,transparent 34%),var(--bg);color:var(--text);font-family:'Hind Siliguri',Inter,sans-serif;min-height:100vh}
+button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}
+.app{max-width:490px;margin:auto;min-height:100vh;padding:17px 15px 100px}
+.top{display:flex;align-items:center;justify-content:space-between;margin:4px 0 20px}
+.brand{display:flex;gap:10px;align-items:center}.logo{width:44px;height:44px;border-radius:15px;background:linear-gradient(135deg,var(--cyan),var(--blue));display:grid;place-items:center;color:#081323;font-size:23px;font-weight:800;box-shadow:0 8px 25px #56e0d033}
+.brand h1{font-size:19px;margin:0;line-height:1.15}.brand small{color:var(--muted);font-size:10px;letter-spacing:1px}
+.avatar{border:1px solid var(--line);background:var(--panel);border-radius:13px;padding:10px;color:white}
+.hero{background:linear-gradient(135deg,#243b70,#49317c 72%,#673b8e);border:1px solid #7784c966;border-radius:24px;padding:21px;position:relative;overflow:hidden}
+.hero:after{content:"৳";position:absolute;right:14px;top:-22px;font-size:132px;color:#ffffff0d;font-weight:800;pointer-events:none}
+.hero-row{display:flex;align-items:center;justify-content:space-between;gap:8px}.eyebrow{font-size:12px;color:#dce5ff}
+.balance{font:800 34px Inter,sans-serif;letter-spacing:-1px;margin:8px 0}.balance span{font-size:19px}
+.pill{font-size:10px;border:1px solid #ffffff35;border-radius:99px;padding:5px 9px;color:#e5f9ff;background:#ffffff0b;white-space:nowrap}
+.hero-actions{display:flex;gap:9px;margin-top:16px}.btn{border-radius:12px;padding:10px 13px;font-weight:700;font-size:12px;transition:.15s}
+.btn-primary{background:var(--cyan);color:#071521}.btn-ghost{background:#ffffff12;border:1px solid #ffffff2b;color:#fff}.btn-muted{background:var(--panel2);border:1px solid var(--line);color:var(--text)}.btn-danger{background:#ff81961a;border:1px solid #ff819644;color:#ff9aaa}
+button:disabled{opacity:.45;cursor:not-allowed}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:13px 0 22px}.stat{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:12px 9px}
+.stat .ico{font-size:18px}.stat strong{display:block;font:700 17px Inter,sans-serif;margin:6px 0 2px}.stat small{color:var(--muted);font-size:10px}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin:20px 2px 12px}.section-head h2{font-size:18px;margin:0}.section-head button{background:none;color:var(--cyan);font-size:12px}
+.task-list{display:grid;gap:10px}.task{display:flex;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:17px;padding:12px}
+.task-icon{width:43px;height:43px;flex-shrink:0;border-radius:13px;background:var(--panel2);display:grid;place-items:center;font-size:21px}
+.task-info{min-width:0;flex:1}.task-info strong{font-size:13px;display:block}.task-info small{display:block;color:var(--muted);font-size:10px;margin-top:3px;line-height:1.4}
+.tag{display:inline-block;border-radius:7px;background:#56e0d018;color:var(--cyan);font-size:9px;padding:3px 7px;margin-top:5px}
+.task-side{text-align:right}.reward{font:700 11px Inter,sans-serif;color:var(--green);margin:0 0 6px;white-space:nowrap}.task .btn{padding:7px 9px;font-size:10px;white-space:nowrap}
+.notice{border:1px solid #ffd36c45;background:#ffd36c0d;color:#ffe6ad;border-radius:13px;padding:11px;font-size:11px;line-height:1.55;margin-top:14px}
+.panel{display:none}.panel.active{display:block}.hidden{display:none!important}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(490px,100%);display:grid;grid-template-columns:repeat(5,1fr);padding:9px 8px calc(9px + env(safe-area-inset-bottom));background:#0d1527ed;backdrop-filter:blur(20px);border-top:1px solid var(--line);z-index:10}
+.nav button{background:none;color:var(--muted);font-size:9px;padding:5px 0;display:grid;gap:3px;justify-items:center}.nav button span{font-size:18px}.nav button.active{color:var(--cyan)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:17px;padding:15px;margin-bottom:11px}.card h3{font-size:15px;margin:0 0 11px}
+.field{display:grid;gap:6px;margin:10px 0}.field label{font-size:11px;color:var(--muted)}
+.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);background:#0b1324;color:var(--text);border-radius:11px;padding:10px 11px;outline:none}
+.field textarea{min-height:70px;resize:vertical}.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--cyan)}
+.muted{color:var(--muted)}.small-note{font-size:10px;line-height:1.6;color:var(--muted)}.row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.divider{height:1px;background:var(--line);margin:12px 0}.empty{padding:22px;text-align:center;color:var(--muted);background:var(--panel);border:1px dashed var(--line);border-radius:15px;font-size:12px}
+.badge{font-size:9px;color:var(--gold);border:1px solid #ffd36a44;border-radius:7px;padding:4px 7px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.mini-stat{padding:11px;background:#0b1324;border:1px solid var(--line);border-radius:12px}.mini-stat strong{display:block;font:700 19px Inter}
+.toast{position:fixed;top:15px;left:50%;transform:translateX(-50%);z-index:30;background:#202e49;border:1px solid #52668e;color:white;border-radius:12px;padding:10px 14px;max-width:90%;font-size:12px;display:none;box-shadow:0 10px 30px #0005}.toast.show{display:block}
+.yt{color:#ff929d;background:#ff334b20}.telegram{color:#78c9ff;background:#2585ff20}.quiz{color:#c6a3ff;background:#aa7cff20}
+.tapbox{background:linear-gradient(145deg,#1b2b4c,#171b3b);border:1px solid #4c5f8c;border-radius:20px;padding:17px;text-align:center}
+.tap-orb{width:112px;height:112px;border-radius:50%;margin:13px auto;background:radial-gradient(circle at 35% 25%,#83fff0,#44a7ff 50%,#6d52f2 80%);box-shadow:0 0 0 9px #5c8cff12,0 0 35px #57b9ff44;display:grid;place-items:center;color:#091328;font-size:34px;font-weight:800;user-select:none;touch-action:manipulation}
+.tap-orb:active{transform:scale(.95)}.progress{height:7px;background:#ffffff12;border-radius:99px;overflow:hidden;margin:10px 0}
+.progress div{height:100%;background:linear-gradient(90deg,var(--cyan),var(--blue));width:0%;transition:width .2s}
+.video-frame{aspect-ratio:16/9;background:#080d18;border:1px solid var(--line);border-radius:13px;overflow:hidden;display:grid;place-items:center;margin:10px 0;color:var(--muted);font-size:12px}
+.video-frame iframe{width:100%;height:100%;border:0}.timer{font:800 24px Inter;color:var(--cyan);text-align:center;margin:9px}
+.history-item{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);font-size:11px}.history-item:last-child{border-bottom:0}
+.method{display:flex;gap:8px;align-items:center;background:#0b1324;border:1px solid var(--line);border-radius:11px;padding:10px;margin:7px 0}.method input{accent-color:var(--cyan)}
+.subtle-link{color:var(--cyan);word-break:break-all}
+@media(max-width:360px){.app{padding-left:10px;padding-right:10px}.task{gap:7px;padding:9px}.task-icon{width:36px;height:36px}.task .btn{padding:7px}.balance{font-size:29px}}
+</style>
+</head>
+<body>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="app">
+<header class="top"><div class="brand"><div class="logo">T</div><div><h1>TaskNova</h1><small>TASKS • LEARN • REWARDS</small></div></div><button class="avatar" onclick="showPanel('aboutPanel')" aria-label="অ্যাপ সম্পর্কে">ⓘ</button></header>
+
+<section class="panel active" id="homePanel">
+  <div class="hero"><div class="hero-row"><div class="eyebrow">আপনার ডেমো ব্যালেন্স</div><span class="pill">● DEMO MODE</span></div><div class="balance"><span>৳</span><b id="balance">25.00</b></div><div class="hero-row"><span class="eyebrow">টাস্ক সম্পন্ন করে ডেমো রিওয়ার্ড</span><span class="pill">BDT</span></div><div class="hero-actions"><button class="btn btn-primary" onclick="showPanel('tasksPanel')">টাস্ক দেখুন ↗</button><button class="btn btn-ghost" onclick="showPanel('walletPanel')">ওয়ালেট</button></div></div>
+  <div class="stats"><div class="stat"><div class="ico">✅</div><strong id="completedStat">0</strong><small>সম্পন্ন টাস্ক</small></div><div class="stat"><div class="ico">🎯</div><strong id="availableStat">5</strong><small>টাস্ক বাকি</small></div><div class="stat"><div class="ico">📅</div><strong id="todayStat">0.00</strong><small>আজকের রিওয়ার্ড</small></div></div>
+  <div class="section-head"><h2>✨ দ্রুত শুরু করুন</h2><button onclick="showPanel('tasksPanel')">সব টাস্ক →</button></div><div class="task-list" id="homeTasks"></div>
+  <div class="section-head"><h2>👆 Tap Tap</h2><button onclick="showPanel('tapPanel')">খুলুন →</button></div><div class="card"><div class="row"><div><strong>ট্যাপ চ্যালেঞ্জ</strong><div class="small-note">১০ বার ট্যাপ করলে ডেমো বিজ্ঞাপন স্লট দেখাবে</div></div><button class="btn btn-primary" onclick="showPanel('tapPanel')">ট্যাপ করুন</button></div></div>
+  <div class="notice">ডেমো সতর্কতা: এখানে দেখানো ব্যালেন্স কাল্পনিক। কোনো প্রকৃত পেমেন্ট বা সার্ভার-সুরক্ষিত রিওয়ার্ড চালু নেই।</div>
+</section>
+
+<section class="panel" id="tasksPanel"><div class="section-head"><h2>🎯 টাস্ক সেন্টার</h2><span class="pill">All Tasks</span></div><div class="task-list" id="allTasks"></div><div class="notice">ভিডিও টাস্কের টাইমার শুধু সময় পার হওয়া যাচাই করে—বাস্তবে ভিডিও দেখেছেন কি না, তা প্রমাণ করে না। YouTube সাবস্ক্রিপশনের বিনিময়ে পুরস্কার দেওয়া হয় না।</div></section>
+
+<section class="panel" id="taskDetailPanel"><div class="section-head"><h2 id="detailTitle">টাস্ক</h2><button onclick="showPanel('tasksPanel')">← ফিরে যান</button></div><div class="card"><div id="detailDescription" class="muted"></div><div id="videoArea"></div><div id="taskActionArea"></div></div></section>
+
+<section class="panel" id="tapPanel"><div class="section-head"><h2>👆 Tap Tap Challenge</h2><span class="pill">10 taps</span></div><div class="tapbox"><div class="muted">প্রতি ট্যাপে অগ্রগতি বাড়বে</div><button class="tap-orb" id="tapButton" aria-label="ট্যাপ করুন">TAP</button><div style="font:700 19px Inter"><span id="tapCount">0</span> / 10</div><div class="progress"><div id="tapProgress"></div></div><div class="small-note">১০ ট্যাপের পরে শুধু ডেমো ad placeholder দেখানো হবে।</div></div>
+<div id="tapAdSlot" class="card hidden" style="margin-top:12px"><h3>📣 বিজ্ঞাপন স্লট</h3><p class="small-note" id="adStatus">১০টি ট্যাপ সম্পন্ন হয়েছে। এটি শুধু একটি placeholder; কোনো বিজ্ঞাপন নিশ্চিতভাবে লোড হয় না।</p><button class="btn btn-primary" onclick="showGigapubAd()">বিজ্ঞাপন দেখুন</button> <button class="btn btn-muted" onclick="resetTaps()">আবার শুরু করুন</button><p class="small-note">Gigapub SDK-এর বর্তমান অফিসিয়াল নির্দেশনা ও অনুমোদিত Zone ID যাচাই করে তারপর সংযুক্ত করুন।</p></div></section>
+
+<section class="panel" id="walletPanel"><div class="section-head"><h2>👛 ওয়ালেট</h2></div><div class="card"><div class="muted">বর্তমান ডেমো ব্যালেন্স</div><div class="balance"><span>৳</span><b id="walletBalance">25.00</b></div><div class="small-note">বাস্তব অর্থ নয়। উত্তোলনের ফর্মটি শুধু UI ডেমো; কোনো টাকা পাঠানো হবে না।</div></div>
+<div class="card"><h3>উত্তোলনের অনুরোধ (ডেমো)</h3><div class="field"><label>পেমেন্ট মাধ্যম</label><label class="method"><input type="radio" name="method" value="বিকাশ" checked><span>🩷 বিকাশ (bKash)</span></label><label class="method"><input type="radio" name="method" value="নগদ"><span>🟠 নগদ (Nagad)</span></label><label class="method"><input type="radio" name="method" value="রকেট"><span>🟣 রকেট (Rocket)</span></label></div><div class="field"><label for="walletNumber">অ্যাকাউন্ট নম্বর (ডেমো)</label><input id="walletNumber" inputmode="numeric" placeholder="01XXXXXXXXX" maxlength="11"></div><div class="field"><label for="withdrawAmount">পরিমাণ (৳)</label><input id="withdrawAmount" type="number" min="1" step="1" placeholder="যেমন 100"></div><button class="btn btn-primary" style="width:100%" onclick="requestWithdraw()">অনুরোধ জমা দিন</button><p class="small-note">এই ডেমোতে নম্বর সার্ভারে পাঠানো বা সংরক্ষণ করা হয় না।</p></div>
+<div class="card"><h3>লেনদেনের ইতিহাস</h3><div id="history"><div class="empty">এখনো কোনো ডেমো টাস্ক সম্পন্ন হয়নি।</div></div></div></section>
+
+<section class="panel" id="aboutPanel"><div class="section-head"><h2>ℹ️ অ্যাপ সম্পর্কে</h2></div><div class="card"><h3>TaskNova কী?</h3><p class="small-note">TaskNova একটি Telegram Mini App UI ডেমো, যেখানে শেখার টাস্ক, ভিডিও লিংক, কুইজ, ট্যাপ চ্যালেঞ্জ এবং একটি ডেমো ওয়ালেটের ধারণা দেখানো হয়েছে।</p><div class="divider"></div><h3>ব্যবহার নীতিমালা</h3><p class="small-note">• ডেমো ব্যালেন্সের কোনো আর্থিক মূল্য নেই।<br>• YouTube সাবস্ক্রিপশন/ভিউয়ের বিনিময়ে পুরস্কার দেওয়া হয় না।<br>• বিজ্ঞাপন নেটওয়ার্কের শর্ত মেনে বিজ্ঞাপন ব্যবহার করতে হবে।<br>• বাস্তব অ্যাপে নিরাপদ ব্যাকএন্ড, Telegram initData যাচাই, ডেটাবেস, অ্যাডমিন অথেনটিকেশন ও পেমেন্ট প্রোভাইডার দরকার।</p></div><div class="card"><h3>প্রোফাইল</h3><div class="row"><span class="muted">Telegram ব্যবহারকারী</span><strong id="userName">Demo User</strong></div><div class="divider"></div><div class="row"><span class="muted">Telegram ID</span><strong id="userId">ডেমো মোড</strong></div></div></section>
+
+<section class="panel" id="adminPanel"><div class="section-head"><h2>⚙️ টাস্ক ম্যানেজমেন্ট</h2><span class="badge">LOCAL DEMO</span></div><div class="notice" style="margin:0 0 12px">ডেমো অ্যাডমিন প্যানেলটি পাসওয়ার্ড-সুরক্ষিত নয়। লাইভ সাইটে ব্যবহার করবেন না।</div>
+<div class="card"><h3>➕ নতুন টাস্ক তৈরি করুন</h3><div class="field"><label for="newTitle">টাস্কের নাম</label><input id="newTitle" placeholder="যেমন: নতুন ভিডিও টাস্ক"></div><div class="field"><label for="newDesc">বিবরণ</label><textarea id="newDesc" placeholder="টাস্কের নির্দেশনা"></textarea></div><div class="field"><label for="newType">টাস্কের ধরন</label><select id="newType" onchange="toggleTaskFields()"><option value="video">YouTube ভিডিও (সময়ভিত্তিক)</option><option value="telegram">Telegram চ্যানেল/গ্রুপ</option><option value="quiz">কুইজ</option><option value="subscribe">YouTube চ্যানেল পরিচিতি (রিওয়ার্ড নয়)</option><option value="general">সাধারণ শেখার টাস্ক</option></select></div><div class="field" id="urlField"><label for="newUrl">ভিডিও / চ্যানেল লিংক</label><input id="newUrl" type="url" placeholder="https://www.youtube.com/watch?v=..."></div><div class="field" id="durationField"><label for="newDuration">ভিডিও টাস্কের সময়</label><select id="newDuration"><option value="60">১ মিনিট</option><option value="120">২ মিনিট</option></select></div><div class="field"><label for="newReward">ডেমো রিওয়ার্ড (৳)</label><input id="newReward" type="number" min="0" max="100" step="0.5" placeholder="2.00"></div><button class="btn btn-primary" onclick="addTask()">টাস্ক যোগ করুন</button><p class="small-note">YouTube চ্যানেল পরিচিতি টাস্কে রিওয়ার্ড স্বয়ংক্রিয়ভাবে ৳0 রাখা হয়।</p></div>
+<div class="card"><div class="row"><h3 style="margin:0">ডেমো সারাংশ</h3><button class="btn btn-muted" onclick="resetDemo()">রিসেট</button></div><div class="grid2" style="margin-top:12px"><div class="mini-stat"><span class="muted">মোট টাস্ক</span><strong id="adminTaskCount">5</strong></div><div class="mini-stat"><span class="muted">সম্পন্ন টাস্ক</span><strong id="adminDoneCount">0</strong></div></div><div class="divider"></div><div id="adminTaskList"></div></div></section>
+</div>
+
+<nav class="nav" aria-label="প্রধান মেনু"><button class="active" data-panel="homePanel" onclick="showPanel('homePanel',this)"><span>⌂</span>হোম</button><button data-panel="tasksPanel" onclick="showPanel('tasksPanel',this)"><span>◈</span>টাস্ক</button><button data-panel="tapPanel" onclick="showPanel('tapPanel',this)"><span>👆</span>ট্যাপ</button><button data-panel="walletPanel" onclick="showPanel('walletPanel',this)"><span>▣</span>ওয়ালেট</button><button data-panel="adminPanel" onclick="showPanel('adminPanel',this)"><span>⚙</span>অ্যাডমিন</button></nav>
+
+<script>
+'use strict';
+const tg = window.Telegram && window.Telegram.WebApp;
+try { if (tg) { tg.ready(); tg.expand(); } } catch (e) {}
+
+const baseTasks = [
+ {id:'v1',title:'YouTube ভিডিও দেখুন',desc:'ভিডিও লিংক খুলে ১ মিনিটের ডেমো টাইমার শেষ করুন',type:'video',url:'https://www.youtube.com/watch?v=2fPHzljNAKA',duration:60,reward:2,icon:'▶️',tag:'ভিডিও • ১ মিনিট'},
+ {id:'tg1',title:'Telegram চ্যানেল তথ্য',desc:'চ্যানেল লিংক খুলুন, তারপর একটি ছোট যাচাই প্রশ্নের উত্তর দিন',type:'telegram',url:'https://t.me/telegram',reward:1.5,icon:'✈️',tag:'Telegram'},
+ {id:'q1',title:'সাইবার সেফটি কুইজ',desc:'নিরাপদ ইন্টারনেট ব্যবহার সম্পর্কে প্রশ্নের উত্তর দিন',type:'quiz',reward:1,icon:'🧠',tag:'কুইজ'},
+ {id:'sub1',title:'YouTube চ্যানেল পরিচিতি',desc:'চ্যানেল সম্পর্কে জানুন। সাবস্ক্রাইব করা বাধ্যতামূলক নয় এবং এর জন্য রিওয়ার্ড নেই',type:'subscribe',url:'https://www.youtube.com/',reward:0,icon:'🔔',tag:'শুধু তথ্য • রিওয়ার্ড নেই'},
+ {id:'learn1',title:'বিজ্ঞাপন নীতি শিখুন',desc:'বিজ্ঞাপন ও অনলাইন নিরাপত্তা সম্পর্কে তথ্য পড়ুন',type:'general',reward:.5,icon:'📘',tag:'শেখার টাস্ক'}
+];
+let tasks = baseTasks.map(t => ({...t}));
+let balance = 25, completed = new Set(), history = [], todayEarned = 0, timerState = null, tapCount = 0;
+const $ = id => document.getElementById(id);
+function money(n){ return Number(n || 0).toFixed(2); }
+function toast(message){ const el=$('toast'); el.textContent=message; el.classList.add('show'); clearTimeout(toast.timer); toast.timer=setTimeout(()=>el.classList.remove('show'),2700); }
+function escapeHtml(value){ return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
+function showPanel(id, btn){
+ if(timerState){ clearInterval(timerState.interval); timerState=null; }
+ document.querySelectorAll('.panel').forEach(panel=>panel.classList.toggle('active',panel.id===id));
+ document.querySelectorAll('.nav button').forEach(button=>button.classList.toggle('active',button.dataset.panel===id));
+ if(btn && btn.dataset.panel) btn.classList.add('active');
+ if(id==='adminPanel') renderAdmin();
+}
+function toYoutubeEmbed(url){
+ try{
+  const parsed=new URL(url); let videoId='';
+  if(parsed.hostname==='youtu.be') videoId=parsed.pathname.slice(1);
+  else if(parsed.hostname.endsWith('youtube.com')) videoId=parsed.searchParams.get('v') || parsed.pathname.split('/').filter(Boolean).pop();
+  return videoId && /^[\w-]{6,}$/.test(videoId) ? 'https://www.youtube-nocookie.com/embed/'+videoId+'?rel=0&playsinline=1' : '';
+ }catch(e){ return ''; }
+}
+function openTask(id){
+ const task=tasks.find(item=>item.id===id); if(!task) return;
+ if(completed.has(id)){ toast('এই ডেমো টাস্ক আগেই সম্পন্ন হয়েছে।'); return; }
+ showPanel('taskDetailPanel');
+ $('detailTitle').textContent=task.title; $('detailDescription').textContent=task.desc;
+ const area=$('videoArea'), actions=$('taskActionArea'); area.innerHTML=''; actions.innerHTML='';
+ if(task.type==='video'){
+  const embed=toYoutubeEmbed(task.url);
+  area.innerHTML='<div class="video-frame">'+(embed?'<iframe src="'+escapeHtml(embed)+'" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>':'<div>বৈধ ভিডিও লিংক নেই</div>')+'</div>'+
+   '<div class="timer" id="timerText">'+Math.floor(task.duration/60)+':'+String(task.duration%60).padStart(2,'0')+'</div><div class="progress"><div id="timerProgress"></div></div><p class="small-note">টাইমার শুধু সময় পার হওয়া যাচাই করে; ভিডিও দেখা প্রমাণ করে না।</p>';
+  actions.innerHTML='<button class="btn btn-primary" id="startTimer" style="width:100%">▶ টাইমার শুরু করুন</button><button class="btn btn-muted" id="completeTimed" style="width:100%;margin-top:8px" disabled>সময় শেষ হলে Complete</button>';
+  $('startTimer').addEventListener('click',()=>startWatchTimer(task.id));
+  $('completeTimed').addEventListener('click',()=>completeTask(task.id));
+ } else if(task.type==='subscribe'){
+  area.innerHTML='<div class="notice">YouTube সাবস্ক্রাইব বা ভিউয়ের বিনিময়ে পুরস্কার দেওয়া হচ্ছে না।</div><p><a class="subtle-link" href="'+escapeHtml(task.url||'https://www.youtube.com/')+'" target="_blank" rel="noopener noreferrer">YouTube লিংক খুলুন ↗</a></p>';
+  actions.innerHTML='<button class="btn btn-muted" style="width:100%" onclick="showPanel(\\'tasksPanel\\')">টাস্ক তালিকায় ফিরুন</button>';
+ } else if(task.type==='telegram'){
+  area.innerHTML='<p><a class="subtle-link" href="'+escapeHtml(task.url||'https://t.me/')+'" target="_blank" rel="noopener noreferrer">Telegram লিংক খুলুন ↗</a></p><p class="small-note">এটি ডেমো যাচাই; বাস্তব সদস্যপদ যাচাইয়ের জন্য সার্ভার-সাইড যাচাই দরকার।</p>';
+  actions.innerHTML='<button class="btn btn-primary" style="width:100%" id="quizAction">তথ্য যাচাই করুন</button>';
+  $('quizAction').addEventListener('click',()=>quizPrompt(task.id));
+ } else if(task.type==='quiz'){
+  area.innerHTML='<p>প্রশ্ন: অপরিচিত লিংক পেলে সবচেয়ে নিরাপদ কাজ কী?</p><p class="small-note">এই ডেমোতে উত্তর হিসেবে “যাচাই” লিখুন।</p>';
+  actions.innerHTML='<button class="btn btn-primary" style="width:100%" id="quizAction">উত্তর দিন ও যাচাই করুন</button>';
+  $('quizAction').addEventListener('click',()=>quizPrompt(task.id));
+ } else {
+  area.innerHTML='<p>নির্দেশনা পড়ে “পড়েছি” নিশ্চিত করুন।</p>';
+  actions.innerHTML='<button class="btn btn-primary" style="width:100%" id="generalAction">পড়েছি — ডেমো টাস্ক সম্পন্ন</button>';
+  $('generalAction').addEventListener('click',()=>completeTask(task.id));
+ }
+}
+function startWatchTimer(id){
+ const task=tasks.find(item=>item.id===id); if(!task) return;
+ if(timerState){ clearInterval(timerState.interval); timerState=null; }
+ const start=$('startTimer'), complete=$('completeTimed'); if(start) start.disabled=true; if(complete) complete.disabled=true;
+ let left=Math.max(1,Number(task.duration)||60); const total=left;
+ const paint=()=>{const label=$('timerText'),progress=$('timerProgress');if(label)label.textContent=Math.floor(left/60)+':'+String(left%60).padStart(2,'0');if(progress)progress.style.width=((total-left)/total*100)+'%';};
+ paint();
+ const interval=setInterval(()=>{
+  left--; paint();
+  if(left<=0){clearInterval(interval);timerState=null;const label=$('timerText');if(label)label.textContent='সময় শেষ';if(complete)complete.disabled=false;toast('টাইমার শেষ! এখন ডেমো Complete করতে পারেন।');}
+ },1000);
+ timerState={id,interval};
+}
+function completeTask(id){
+ const task=tasks.find(item=>item.id===id); if(!task||completed.has(id)) return;
+ if(task.type==='video' && $('completeTimed')?.disabled){toast('আগে টাইমার শেষ হতে দিন।');return;}
+ completed.add(id); balance+=Number(task.reward||0); todayEarned+=Number(task.reward||0);
+ history.push({title:task.title,reward:Number(task.reward||0),time:new Date().toLocaleString('bn-BD')});
+ render(); toast(task.reward>0?'ডেমো টাস্ক সম্পন্ন! ৳'+money(task.reward)+' যোগ হয়েছে।':'টাস্কটি সম্পন্ন হয়েছে; এতে রিওয়ার্ড নেই।'); showPanel('tasksPanel');
+}
+function quizPrompt(id){
+ const task=tasks.find(item=>item.id===id); if(!task)return;
+ const answer=prompt('ডেমো যাচাইয়ের জন্য “যাচাই” লিখুন:');
+ if(answer===null)return;
+ if(answer.trim().toLowerCase()!=='যাচাই'){toast('উত্তর সঠিক নয়। “যাচাই” লিখে চেষ্টা করুন।');return;}
+ completeTask(id);
+}
+function card(task){
+ const done=completed.has(task.id);
+ const tagClass=task.type==='video'?'yt':task.type==='telegram'?'telegram':task.type==='quiz'?'quiz':'';
+ return '<article class="task"><div class="task-icon">'+escapeHtml(task.icon||'✨')+'</div><div class="task-info"><strong>'+escapeHtml(task.title)+'</strong><small>'+escapeHtml(task.desc)+'</small><span class="tag '+tagClass+'">'+escapeHtml(task.tag||task.type)+'</span></div><div class="task-side"><div class="reward">+৳'+money(task.reward)+'</div><button class="btn '+(done?'btn-muted':'btn-primary')+'" '+(done?'disabled':'')+' data-open-task="'+escapeHtml(task.id)+'">'+(done?'সম্পন্ন ✓':'খুলুন')+'</button></div></article>';
+}
+function render(){
+ $('balance').textContent=money(balance); $('walletBalance').textContent=money(balance);
+ $('completedStat').textContent=completed.size;
+ $('availableStat').textContent=tasks.filter(task=>!completed.has(task.id)).length;
+ $('todayStat').textContent=money(todayEarned);
+ $('homeTasks').innerHTML=tasks.filter(task=>!completed.has(task.id)).slice(0,3).map(card).join('')||'<div class="empty">সব ডেমো টাস্ক সম্পন্ন হয়েছে 🎉</div>';
+ $('allTasks').innerHTML=tasks.map(card).join('')||'<div class="empty">এখনো কোনো টাস্ক নেই।</div>';
+ $('history').innerHTML=history.length?history.slice().reverse().map(item=>'<div class="history-item"><span>'+escapeHtml(item.title)+'<br><span class="muted">'+escapeHtml(item.time)+'</span></span><strong style="color:var(--green)">+৳'+money(item.reward)+'</strong></div>').join(''):'<div class="empty">এখনো কোনো ডেমো টাস্ক সম্পন্ন হয়নি।</div>';
+ renderAdmin();
+}
+document.addEventListener('click',event=>{
+ const button=event.target.closest('[data-open-task]');
+ if(button)openTask(button.dataset.openTask);
+});
+function toggleTaskFields(){
+ const type=$('newType').value;
+ $('urlField').style.display=['video','telegram','subscribe'].includes(type)?'grid':'none';
+ $('durationField').style.display=type==='video'?'grid':'none';
+}
+function addTask(){
+ const title=$('newTitle').value.trim(), desc=$('newDesc').value.trim(), type=$('newType').value, url=$('newUrl').value.trim();
+ const duration=Number($('newDuration').value), reward=type==='subscribe'?0:Number($('newReward').value||0);
+ if(!title||!desc){toast('টাস্কের নাম ও বিবরণ লিখুন।');return;}
+ if(['video','telegram','subscribe'].includes(type)){
+  if(!url){toast('টাস্কের লিংক দিন।');return;}
+  let parsed;try{parsed=new URL(url);}catch(e){toast('সঠিক URL দিন।');return;}
+  const host=parsed.hostname.toLowerCase();
+  const valid=parsed.protocol==='https:' && ((type==='telegram'&&(host==='t.me'||host==='telegram.me')) || (type!=='telegram'&&(host==='youtube.com'||host.endsWith('.youtube.com')||host==='youtu.be')));
+  if(!valid){toast('এই টাস্কের জন্য বৈধ HTTPS YouTube বা Telegram লিংক দিন।');return;}
+ }
+ if(!Number.isFinite(reward)||reward<0||reward>100){toast('রিওয়ার্ড ০–১০০ টাকার মধ্যে দিন।');return;}
+ const meta={video:['▶️','ভিডিও • '+(duration===120?'২':'১')+' মিনিট'],telegram:['✈️','Telegram'],quiz:['🧠','কুইজ'],subscribe:['🔔','শুধু তথ্য • রিওয়ার্ড নেই'],general:['✨','শেখার টাস্ক']};
+ const [icon,tag]=meta[type];
+ tasks.push({id:'custom-'+Date.now(),title,desc,type,url,duration,reward,icon,tag});
+ $('newTitle').value='';$('newDesc').value='';$('newUrl').value='';$('newReward').value='';
+ render();toast('নতুন ডেমো টাস্ক যোগ হয়েছে。'.replace('。','।'));
+}
+function renderAdmin(){
+ if(!$('adminTaskCount'))return;
+ $('adminTaskCount').textContent=tasks.length;$('adminDoneCount').textContent=completed.size;
+ $('adminTaskList').innerHTML=tasks.map(task=>'<div class="history-item"><span>'+escapeHtml(task.title)+'<br><span class="muted">'+escapeHtml(task.type)+' • ৳'+money(task.reward)+'</span></span><button class="btn btn-danger" data-delete-task="'+escapeHtml(task.id)+'">মুছুন</button></div>').join('')||'<div class="empty">কোনো টাস্ক নেই।</div>';
+}
+document.addEventListener('click',event=>{
+ const button=event.target.closest('[data-delete-task]');
+ if(button)deleteTask(button.dataset.deleteTask);
+});
+function deleteTask(id){tasks=tasks.filter(task=>task.id!==id);completed.delete(id);render();toast('টাস্ক মুছে ফেলা হয়েছে।');}
+function requestWithdraw(){
+ const method=document.querySelector('input[name="method"]:checked')?.value||'বিকাশ';
+ const number=$('walletNumber').value.trim(), amount=Number($('withdrawAmount').value);
+ if(!/^01\d{9}$/.test(number)){toast('ডেমোর জন্য ১১ সংখ্যার বাংলাদেশি মোবাইল নম্বর দিন।');return;}
+ if(!Number.isFinite(amount)||amount<=0){toast('সঠিক পরিমাণ লিখুন।');return;}
+ if(amount>balance){toast('ডেমো ব্যালেন্সের চেয়ে বেশি পরিমাণ চাওয়া যাবে না।');return;}
+ toast(method+' উত্তোলন অনুরোধ ডেমোতে গ্রহণ করা হয়েছে—কোনো টাকা পাঠানো হয়নি।');
+ $('walletNumber').value='';$('withdrawAmount').value='';
+}
+function showGigapubAd(){
+ $('adStatus').textContent='এই ফাইলে বিজ্ঞাপনের placeholder রাখা হয়েছে। Gigapub-এর বর্তমান অফিসিয়াল SDK/API ও অনুমোদিত Zone ID নিশ্চিত না করে বিজ্ঞাপন কল করা হচ্ছে না।';
+ toast('Gigapub SDK সংযোগের জন্য সঠিক API তথ্য প্রয়োজন।');
+}
+function tap(){
+ if(tapCount>=10)return;
+ tapCount++;$('tapCount').textContent=tapCount;$('tapProgress').style.width=(tapCount*10)+'%';
+ if(tapCount===10){$('tapAdSlot').classList.remove('hidden');$('adStatus').textContent='১০টি ট্যাপ সম্পন্ন হয়েছে। বিজ্ঞাপন placeholder প্রস্তুত।';toast('১০টি ট্যাপ সম্পন্ন!');}
+}
+function resetTaps(){tapCount=0;$('tapCount').textContent='0';$('tapProgress').style.width='0%';$('tapAdSlot').classList.add('hidden');}
+$('tapButton').addEventListener('click',tap);
+function resetDemo(){
+ if(!confirm('সব ডেমো ডেটা রিসেট করবেন?'))return;
+ if(timerState){clearInterval(timerState.interval);timerState=null;}
+ tasks=baseTasks.map(task=>({...task}));balance=25;completed=new Set();history=[];todayEarned=0;resetTaps();render();showPanel('homePanel');toast('ডেমো রিসেট হয়েছে।');
+}
+if(tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user){
+ const user=tg.initDataUnsafe.user;
+ $('userName').textContent=[user.first_name,user.last_name].filter(Boolean).join(' ')||'Telegram User';
+ $('userId').textContent=user.id||'Telegram';
+}
+toggleTaskFields();render();
+</script>
+</body>
+</html>
